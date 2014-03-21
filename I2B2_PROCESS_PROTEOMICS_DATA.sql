@@ -1,4 +1,5 @@
-create or replace PROCEDURE         "I2B2_PROCESS_PROTEOMICS_DATA" 
+create or replace
+PROCEDURE         "I2B2_PROCESS_PROTEOMICS_DATA" 
 (
   trial_id 		VARCHAR2
  ,top_node		varchar2
@@ -89,6 +90,7 @@ AS
     tm_lz.lt_src_protein_display_mapping;
 
 BEGIN
+  EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	
@@ -941,7 +943,7 @@ BEGIN
 	  and sd.source_cd = sourceCd
 	 -- and sd.gpl_id = gs.id_ref
 	--  and md.peptide =p.peptide-- gs.mirna_id
-	 and decode(dataType,'R',sign(md.intensity_value),1) = 1  
+	 and decode(dataType,'R',sign(md.intensity_value),1) <> -1   --UAT 154 changes done on 19/03/2014
 	 and sd.subject_id in (select subject_id from lt_src_proteomics_sub_sam_map) 
 	group by md.peptide ,subject_id
 		  ,sd.patient_id,sd.assay_id;
@@ -1012,16 +1014,17 @@ BEGIN
                   ,d.biomarker_id
 		  ,m.assay_id
                   ,m.subject_id 
-                   ,round(m.intensity_value,6) as intensity
+                   ,m.intensity_value as intensity ----UAT 154 changes done on 19/03/2014
 			  ,case when m.intensity_value < -2.5
 			        then -2.5
 					when m.intensity_value > 2.5
 					then 2.5
 					else m.intensity_value
 			   end as zscore
-                           , case when m.intensity_value > 0 then round(log(2, m.intensity_value),6)
+                           /*, case when m.intensity_value > 0 then round(log(2, m.intensity_value),6)
                             else 0 
-                            end 
+                            end */
+                            ,round(log(2, m.intensity_value + 0.001),6)  ----UAT 154 changes done on 19/03/2014
                             ,m.patient_id
 		from WT_SUBJECT_PROTEOMICS_PROBESET  m
                 ,DEAPP.DE_PROTEIN_ANNOTATION d

@@ -1,4 +1,5 @@
-create or replace PROCEDURE         "I2B2_PROCESS_MIRNA_INC_DATA" 
+create or replace
+PROCEDURE         "I2B2_PROCESS_MIRNA_INC_DATA" 
 (
   trial_id 		VARCHAR2
  ,top_node		varchar2
@@ -97,6 +98,7 @@ AS
 
 
 BEGIN
+  EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	mirnaType:=upper(mirna_type);
@@ -970,7 +972,7 @@ BEGIN
 	  and sd.trial_name =TrialId
 	  and sd.source_cd = sourceCd
 	  and md.probeset =p.probeset-- gs.mirna_id
-	  and decode(dataType,'R',sign(md.intensity_value),1) = 1  ---UAT_163-Changes introduced 
+	  and decode(dataType,'R',sign(md.intensity_value),1) <> -1  ---UAT_163-Changes introduced ,UAT 154 changes on 19/03/2014
 	  and (sd.subject_id||sd.sample_cd) in (select (subject_id||sample_cd) from LT_SRC_MIRNA_SUBJ_SAMP_MAP) 
 	group by  p.probeset_id 
 		  ,sd.patient_id,sd.assay_id;

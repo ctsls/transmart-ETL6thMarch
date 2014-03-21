@@ -93,6 +93,7 @@ AS
 
 
 BEGIN
+  EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	
@@ -984,7 +985,7 @@ dbms_output.put_line('1');
 	  and sd.source_cd = sourceCd
 	 -- and sd.gpl_id = gs.id_ref   --check
 	--and trim(substr(md.analyte,1,instr(md.analyte,'(')-1)) =trim(gs.antigen_name)
-	and decode(dataType,'R',sign(md.avalue),1) = 1  --check
+	and decode(dataType,'R',sign(md.avalue),1) <> -1  --UAT 154 changes done on 19/03/2014
 	 and (sd.subject_id||sd.sample_cd) in (select (subject_id||sample_cd) from LT_SRC_RBM_SUBJ_SAMP_MAP)
 	group by md.analyte 
 		  ,sd.patient_id,sd.assay_id

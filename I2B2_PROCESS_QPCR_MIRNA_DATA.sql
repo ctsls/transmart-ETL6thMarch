@@ -1,4 +1,5 @@
-create or replace PROCEDURE         "I2B2_PROCESS_QPCR_MIRNA_DATA" 
+create or replace
+PROCEDURE         "I2B2_PROCESS_QPCR_MIRNA_DATA" 
 (
   trial_id 		VARCHAR2
  ,top_node		varchar2
@@ -425,7 +426,7 @@ BEGIN
 	,platform
 	,tissue_type
 	,attribute_1
-    ,attribute_2
+        ,attribute_2
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
@@ -439,7 +440,7 @@ BEGIN
 		  ,'PLATFORM'
 	from  WT_QPCR_MIRNA_NODE_VALUES;
 		   
-    stepCt := stepCt + 1;
+        stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Create platform nodes in wt_qpcr_mirna_nodes',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	
@@ -450,7 +451,7 @@ BEGIN
 	,category_cd
 	,platform
 	,tissue_type
-    ,attribute_1
+        ,attribute_1
 	,attribute_2
 	,node_type
 	)
@@ -465,9 +466,9 @@ BEGIN
 		  ,'ATTR1'
 	from  WT_QPCR_MIRNA_NODE_VALUES
 	where category_cd like '%ATTR1%'
-	  and attribute_1 is not null;
+        and attribute_1 is not null;
 		   
-    stepCt := stepCt + 1;
+        stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Create ATTR1 nodes in WT_QPCR_MIRNA_NODES',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	
@@ -478,7 +479,7 @@ BEGIN
 	,category_cd
 	,platform
 	,tissue_type
-    ,attribute_1
+        ,attribute_1
 	,attribute_2
 	,node_type
 	)
@@ -495,7 +496,7 @@ BEGIN
 	where category_cd like '%ATTR2%'
 	  and attribute_2 is not null;
 		   
-    stepCt := stepCt + 1;
+        stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Create ATTR2 nodes in WT_QPCR_MIRNA_NODES',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 	
@@ -507,7 +508,7 @@ BEGIN
 	,platform
 	,tissue_type
 	,attribute_1
-    ,attribute_2
+        ,attribute_2
 	,node_type
 	)
 	select distinct topNode || regexp_replace(replace(replace(replace(replace(replace(replace(
@@ -522,14 +523,14 @@ BEGIN
 	from  WT_QPCR_MIRNA_NODE_VALUES
 	where category_cd like '%TISSUETYPE%';
 		   
-    stepCt := stepCt + 1;
+        stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Create ATTR2 nodes in wt_qpcr_mirna_nodes',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 				
 	update WT_QPCR_MIRNA_NODES
 	set node_name=parse_nth_value(leaf_node,length(leaf_node)-length(replace(leaf_node,'\',null)),'\');
 		   
-    stepCt := stepCt + 1;
+        stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Updated node_name in DEAPP tmp_mirna_nodes',SQL%ROWCOUNT,stepCt,'Done');
 	commit;
 		
@@ -566,7 +567,7 @@ BEGIN
 	set concept_cd=(select c.concept_cd from concept_dimension c
 	                where c.concept_path = t.leaf_node and rownum = 1
 				   )
-    where exists
+        where exists
          (select 1 from concept_dimension x
 	                where x.concept_path = t.leaf_node
 				   )
@@ -721,7 +722,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert trial into DEAPP de_subject_sample_mapping',SQL%ROWCOUNT,stepCt,'Done');
 
-  commit;
+        commit;
 
 --	recreate de_subject_sam
 --	recreate de_subject_sample_mapping indexes
@@ -737,7 +738,7 @@ BEGIN
 --	Insert records for patients and samples into observation_fact
 
 	insert into observation_fact
-    (patient_num
+        (patient_num
 	,concept_cd
 	,modifier_cd
 	,valtype_cd
@@ -751,8 +752,8 @@ BEGIN
 	,units_cd
         ,sample_cd
         ,INSTANCE_NUM
-    )
-    select distinct m.patient_id
+        )
+        select distinct m.patient_id
 		  ,m.concept_code
 		  ,'@'
 		  ,'T' -- Text data type
@@ -766,15 +767,15 @@ BEGIN
 		  ,'' -- no units available
                    ,m.sample_cd
                   ,1
-    from  de_subject_sample_mapping m
-    where m.trial_name = TrialID 
-	  and m.source_cd = sourceCD
-      and m.platform = mirna_type;
+        from  de_subject_sample_mapping m
+        where m.trial_name = TrialID 
+        and m.source_cd = sourceCD
+        and m.platform = mirna_type;
 	  
-    stepCt := stepCt + 1;
+        stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Insert patient facts into I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
 
-    commit;
+        commit;
     
 	--	Insert sample facts 
 	
@@ -810,12 +811,12 @@ BEGIN
                   ,1
     from  de_subject_sample_mapping m
     where m.trial_name = TrialID 
-	  and m.source_cd = sourceCd
-      and m.platform = mirna_type
-	 and m.patient_id != m.sample_id;
+    and m.source_cd = sourceCd
+    and m.platform = mirna_type
+    and m.patient_id != m.sample_id;
 	  
     stepCt := stepCt + 1;
-	cz_write_audit(jobId,databaseName,procedureName,'Insert sample facts into I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
+    cz_write_audit(jobId,databaseName,procedureName,'Insert sample facts into I2B2DEMODATA observation_fact',SQL%ROWCOUNT,stepCt,'Done');
 
     commit;
     
@@ -878,7 +879,7 @@ BEGIN
 
 	--UPDATE VISUAL ATTRIBUTES for Leaf Active (Default is folder)
 	update i2b2 a
-    set c_visualattributes = 'LAH'
+        set c_visualattributes = 'LAH'
 	where a.c_basecode in (select distinct x.concept_code from de_subject_sample_mapping x
 						   where x.trial_name = TrialId
 						     and x.platform = mirna_type
@@ -887,7 +888,7 @@ BEGIN
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Update visual attributes for leaf nodes in I2B2METADATA i2b2',SQL%ROWCOUNT,stepCt,'Done');
 
-         update i2b2 a
+        update i2b2 a
 	set c_visualattributes='FAS'
         where a.c_fullname = substr(topNode,1,instr(topNode,'\',1,3));
         
@@ -901,7 +902,7 @@ BEGIN
   --Also marks any i2B2 records with no underlying data as Hidden, need to do at Trial level because there may be multiple platform and there is no longer
   -- a unique top-level node for miRNA data
   
-    i2b2_create_concept_counts(topNode ,jobID );
+        i2b2_create_concept_counts(topNode ,jobID );
 	stepCt := stepCt + 1;
 	cz_write_audit(jobId,databaseName,procedureName,'Create concept counts',0,stepCt,'Done');
 	
@@ -956,10 +957,10 @@ BEGIN
 	  and sd.source_cd = sourceCd
 	 -- and sd.gpl_id = gs.id_ref
 	  and md.probeset =p.probeset-- gs.mirna_id
-	  and decode(dataType,'R',sign(md.intensity_value),1) = 1  ---UAT 163 changes done
+	  and decode(dataType,'R',sign(md.intensity_value),1) <> -1  ---UAT 163 changes done,UAT 154 changes on 19/03/2014
 	  and sd.subject_id in (select subject_id from lt_src_mirna_subj_samp_map) 
 	group by  p.probeset_id 
-		  ,sd.patient_id,sd.assay_id;
+        ,sd.patient_id,sd.assay_id;
 		  
 	pExists := SQL%ROWCOUNT;
 	

@@ -1,4 +1,5 @@
-create or replace PROCEDURE         "I2B2_PROCESS_PROTEIN_INC_DATA" 
+create or replace
+PROCEDURE         "I2B2_PROCESS_PROTEIN_INC_DATA" 
 (
   trial_id 		VARCHAR2
  ,top_node		varchar2
@@ -89,6 +90,7 @@ AS
     tm_lz.lt_src_protein_display_mapping;
 
 BEGIN
+  EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	
@@ -957,7 +959,7 @@ BEGIN
 	  and sd.source_cd = sourceCd
 	 -- and sd.gpl_id = gs.id_ref
 	--  and md.peptide =p.peptide-- gs.mirna_id
-	 and decode(dataType,'R',sign(md.intensity_value),1) = 1  
+	 and decode(dataType,'R',sign(md.intensity_value),1)  <> -1   --UAT 154 changes done on 19/03/2014 
 	 and (sd.subject_id||sd.sample_cd) in (select (subject_id||sample_cd) from LT_SRC_PROTEOMICS_SUB_SAM_MAP)
 	group by md.peptide ,subject_id
 		  ,sd.patient_id,sd.assay_id;
@@ -1027,7 +1029,7 @@ BEGIN
                   ,d.biomarker_id
 		  ,m.assay_id
                   ,m.subject_id 
-                   ,round(m.intensity_value,4)
+                   ,m.intensity_value as intensity ----UAT 154 changes done on 19/03/2014
 			  ,case when m.intensity_value < -2.5
 			        then -2.5
 					when m.intensity_value > 2.5

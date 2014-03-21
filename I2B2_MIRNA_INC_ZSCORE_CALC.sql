@@ -1,4 +1,5 @@
-create or replace PROCEDURE                      "I2B2_MIRNA_INC_ZSCORE_CALC" 
+create or replace
+PROCEDURE                      "I2B2_MIRNA_INC_ZSCORE_CALC" 
 (
   trial_id VARCHAR2
  ,run_type varchar2 := 'L'
@@ -148,7 +149,7 @@ if dataType = 'L' then
 		--	,subject_id
 			)
 			select probeset_id
-				  ,round(intensity_value,5)  
+				  ,intensity_value
 				  ,assay_id 
 				  ,round((case when intensity_value<=0 then 0
                                   when intensity_value>0 then log(2,intensity_value)
@@ -173,9 +174,9 @@ if dataType = 'L' then
 		--	,subject_id
 			)
 			select probeset_id
-				  , round((intensity_value),5)
+				  ,intensity_value
 				  ,assay_id 
-				  ,nvl(round(-(intensity_value),5),0)
+				  ,-(intensity_value)
 				  ,patient_id
 		--		  ,sample_cd
 		--		  ,subject_id
@@ -207,7 +208,7 @@ if dataType = 'L' then
 		  ,d.probeset_id
 		  ,avg(log_intensity)
 		  ,median(log_intensity)
-		  ,(case when dataType = 'R' then STDDEV_POP (log_intensity) else STDDEV(log_intensity) end)
+		  , STDDEV(log_intensity) 
 	from wt_subject_mirna_logs d 
 	group by d.trial_name 
 			,d.probeset_id;
@@ -288,17 +289,17 @@ if dataType = 'L' then
 		  ,TrialId
 	      ,m.assay_id
 	      ,m.probeset_id 
-		  ,round(case when dataType = 'R' then (-m.intensity_value)
+		  ,case when dataType = 'R' then m.intensity_value
 				when dataType = 'L' 
 				then m.intensity_value
 				else null
-				end,5) as raw_intensity
+				end as raw_intensity
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
-		  ,round(case when dataType = 'R' then nvl(round((m.intensity_value),5),0)
+		  ,case when dataType = 'R' then -(m.intensity_value)
 				when dataType = 'L' 
 				then m.log_intensity
 				else null
-				end,5)
+				end
 	      ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END)
               --,m.zscore
 		  ,m.patient_id

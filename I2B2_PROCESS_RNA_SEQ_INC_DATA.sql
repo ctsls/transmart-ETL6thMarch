@@ -1,4 +1,5 @@
-create or replace PROCEDURE         "I2B2_PROCESS_RNA_SEQ_INC_DATA" 
+create or replace
+PROCEDURE         "I2B2_PROCESS_RNA_SEQ_INC_DATA" 
 (
   trial_id 		VARCHAR2
  ,top_node		varchar2
@@ -89,6 +90,7 @@ AS
 
 
 BEGIN
+  EXECUTE IMMEDIATE 'alter session set NLS_NUMERIC_CHARACTERS=".,"';
 	TrialID := upper(trial_id);
 	secureStudy := upper(secure_study);
 	
@@ -963,7 +965,7 @@ BEGIN
 	  and sd.source_cd = sourceCd
 	--  and sd.gpl_id = gs.platform
 	and md.probeset = gs.probeset
-	  --and decode(dataType,'R',sign(md.intensity_value),1) = 1  --	take only >0 for dataType R
+         and decode(dataType,'R',sign(md.intensity_value),1) <>  -1  --	--UAT 154 changes done 19/03/2014
           and (sd.subject_id||sd.sample_cd) in (select (subject_id||sample_cd) from lt_src_RNA_SEQ_subj_samp_map) 
 	group by md.probeset
 		--  ,sd.sample_cd

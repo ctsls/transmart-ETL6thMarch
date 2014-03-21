@@ -1,4 +1,5 @@
-create or replace PROCEDURE       "I2B2_PROTEIN_INC_ZSCORE_CALC" 
+create or replace
+PROCEDURE       "I2B2_PROTEIN_INC_ZSCORE_CALC" 
 (
   trial_id VARCHAR2
  ,run_type varchar2 := 'L'
@@ -147,7 +148,7 @@ BEGIN
 			,subject_id
 			)
 			select probeset
-				  ,round(intensity_value,6)  
+				  ,intensity_value  
 				  ,assay_id 
 				  ,round(intensity_value,4)
 				  ,patient_id
@@ -178,9 +179,9 @@ BEGIN
 			,subject_id
 			)
 			select probeset
-				  ,round(intensity_value,6) 
+				  ,intensity_value
 				  ,assay_id 
-				  ,round(log(2,intensity_value),4)
+				  ,round(log(2,intensity_value  + 0.001),4)  ----UAT 154 changes done on 19/03/2014
 				  ,patient_id
 		--		  ,sample_cd
 				  ,subject_id
@@ -315,7 +316,7 @@ BEGIN
                  ,m.assay_id
                  ,m.subject_id
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
-		  ,round(m.intensity_value,6) as intensity
+		  ,m.intensity_value as intensity --UAT 154 changes done on 19/03/2014
                   ,(CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END)
                   ,round(m.log_intensity,4) as log_intensity
                    ,m.patient_id

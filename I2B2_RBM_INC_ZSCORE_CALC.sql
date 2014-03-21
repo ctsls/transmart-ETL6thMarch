@@ -1,4 +1,5 @@
-create or replace PROCEDURE         "I2B2_RBM_INC_ZSCORE_CALC" 
+create or replace
+PROCEDURE         "I2B2_RBM_INC_ZSCORE_CALC" 
 (
   trial_id VARCHAR2
  ,run_type varchar2 := 'L'
@@ -170,7 +171,7 @@ BEGIN
 			select probeset
 				  ,intensity_value 
 				  ,assay_id 
-				  ,log(2,intensity_value)
+				  ,round(log(2,intensity_value + 0.001),6) ---UAT 154 changes done on 19/3/2014
 				  ,patient_id
 		--		  ,sample_cd
 		--		  ,subject_id

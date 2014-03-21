@@ -1,4 +1,5 @@
-create or replace PROCEDURE         "I2B2_RNASEQ_INC_ZSCORE_CALC" 
+create or replace
+PROCEDURE         "I2B2_RNASEQ_INC_ZSCORE_CALC" 
 (
   trial_id VARCHAR2
  ,run_type varchar2 := 'L'
@@ -172,7 +173,8 @@ BEGIN
 			select probeset_id
 				  ,intensity_value 
 				  ,assay_id 
-				  ,CASE WHEN intensity_value<=0 THEN log(2,(intensity_value+0.001)) ELSE log(2,intensity_value) END
+				  --,CASE WHEN intensity_value<=0 THEN log(2,(intensity_value+0.001)) ELSE log(2,intensity_value) END
+                                  ,log(2,(intensity_value+0.001))    ---UAT 154 changes on 19/03/2014
 				  ,patient_id
 		--		  ,sample_cd
 		--		  ,subject_id
@@ -286,11 +288,11 @@ BEGIN
 		  ,TrialId
 	      ,m.assay_id
 	      ,m.probeset_id 
-		  ,round(case when dataType = 'R' then m.intensity_value
+		  ,case when dataType = 'R' then m.intensity_value
 				when dataType = 'L' 
 				then case when logBase = -1 then null else power(logBase, m.log_intensity) end
 				else null
-				end,4) as raw_intensity
+				end as raw_intensity
 	    --  ,decode(dataType,'R',m.intensity_value,'L',power(logBase, m.log_intensity),null)
 		  ,round(m.log_intensity,4)
 	      ,CASE WHEN m.zscore < -2.5 THEN -2.5 WHEN m.zscore >  2.5 THEN  2.5 ELSE round(m.zscore,5) END

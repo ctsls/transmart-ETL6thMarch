@@ -195,7 +195,7 @@ BEGIN
 			select probeset
 				  ,intensity_value 
 				  ,assay_id 
-				  ,round(log(2,intensity_value),4)
+				  ,round(log(2,intensity_value + 0.001),4) --UAT changes done on 19/3/2014
 				  ,patient_id
 		--		  ,sample_cd
 				  ,subject_id
